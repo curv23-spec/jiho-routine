@@ -180,6 +180,11 @@ svg{display:block;}
 .hw-row.done .hbox{background:var(--green);border-color:var(--green-d);color:#fff;}
 .hw-row .htext{flex:1;line-height:1.3;word-break:keep-all;}
 .pages{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:9px;border-radius:18px;padding:2px;}
+.pages.five{grid-template-columns:repeat(5,1fr);}
+.page.bonus{border-style:dashed;}
+.pg-note{margin:8px 2px 0;font-size:13.5px;font-weight:800;color:#6A7288;line-height:1.4;}
+.pg-note.warn{color:#B26A00;background:#FFF6DA;border-radius:12px;padding:8px 11px;}
+.pg-note.ok{color:#1B7A48;}
 .page{
   position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   min-height:88px;border-radius:18px;border:3px solid var(--line);background:#FFFDF6;color:var(--ink);cursor:pointer;
@@ -690,14 +695,16 @@ body.locked{overflow:hidden;}
 
       <div class="hw-group">
         <h3><span>눈높이 국어 <span class="hint" id="korCount">0/4장</span></span>
-          <button class="quick-all" data-act="page-all" data-sub="kor">4장 모두 완료</button></h3>
+          <button class="quick-all" id="korAll" data-act="page-all" data-sub="kor">4장 모두 완료</button></h3>
         <div class="pages" id="korPages"></div>
+        <p class="pg-note" id="korNote"></p>
       </div>
 
       <div class="hw-group">
         <h3><span>눈높이 수학 <span class="hint" id="mathCount">0/4장</span></span>
-          <button class="quick-all" data-act="page-all" data-sub="math">4장 모두 완료</button></h3>
+          <button class="quick-all" id="mathAll" data-act="page-all" data-sub="math">4장 모두 완료</button></h3>
         <div class="pages" id="mathPages"></div>
+        <p class="pg-note" id="mathNote"></p>
       </div>
 
       <div class="hw-progress">
@@ -1580,30 +1587,46 @@ function toggleRoutine(id){
 }
 
 /* ---------- homework ---------- */
+/* 눈높이 장수 규칙: 보통은 4장 중 3장만 해도 완료.
+   어제 3장만 했다면 오늘은 5장을 모두 해야 완료. */
 function countPages(map){
   var n=0;
-  for(var i=1;i<=4;i++){ if(map[i]) n++; }
+  for(var i=1;i<=5;i++){ if(map[i]) n++; }
   return n;
+}
+
+function yesterdayKey(){
+  var t=new Date();
+  return dateKey(new Date(t.getFullYear(),t.getMonth(),t.getDate()-1));
+}
+
+function pageTarget(sub){
+  var y=state.days[yesterdayKey()];
+  var ym=(y && y[sub] && typeof y[sub]==='object')?y[sub]:null;
+  var five=!!ym && countPages(ym)===3;
+  return five ? {tiles:5, need:5, five:true} : {tiles:4, need:3, five:false};
 }
 
 function hwStats(){
   var d=ensureDay(todayKey());
   var kn=knVisible();
-  var total=kn.length+8;
+  var tk=pageTarget('kor'), tm=pageTarget('math');
+  var total=kn.length+tk.need+tm.need;
   var done=0;
   for(var i=0;i<kn.length;i++){ if(d.kn[kn[i].id]) done++; }
-  done+=countPages(d.kor)+countPages(d.math);
+  done+=Math.min(countPages(d.kor),tk.need)+Math.min(countPages(d.math),tm.need);
   var pct=total>0?Math.round(done/total*100):0;
   return {total:total, done:done, pct:pct, remain:Math.max(0,total-done)};
 }
 
-function pagesHtml(sub,map){
+function pagesHtml(sub,map,tg){
   var html='';
-  for(var i=1;i<=4;i++){
+  for(var i=1;i<=tg.tiles;i++){
     var done=!!map[i];
-    html+='<button type="button" class="page'+(done?' done':'')+'" data-act="page" data-sub="'+sub+'" data-n="'+i+'" aria-pressed="'+(done?'true':'false')+'">'
+    var bonus=(!tg.five && i>tg.need);
+    html+='<button type="button" class="page'+(done?' done':'')+(bonus?' bonus':'')+'" data-act="page" data-sub="'+sub+'" data-n="'+i+'" aria-pressed="'+(done?'true':'false')+'">'
       +'<span class="pg-check">'+(done?CHECK_SVG:'')+'</span>'
-      +'<span class="pg-num">'+i+'</span><span class="pg-unit">장</span>'
+      +'<span class="pg-num">'+i+'</span><span class="pg-unit">'+(bonus?'장 · 선택':'장')+'</span>'
       +'</button>';
   }
   return html;
@@ -1623,6 +1646,30 @@ function renderYt(st){
     box.innerHTML='<span class="yt-lock"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#i-lock"></use></svg></span>'
       +'<span class="yt-txt"><b>유튜브는 숙제를 다 하면 열려요</b><span>남은 숙제 '+st.remain+'개</span></span>';
   }
+}
+
+function renderPagesGroup(sub,map){
+  var tg=pageTarget(sub);
+  var n=countPages(map);
+  var box=qs('#'+sub+'Pages');
+  box.className='pages'+(tg.five?' five':'');
+  box.innerHTML=pagesHtml(sub,map,tg);
+  qs('#'+sub+'Count').textContent=n+'/'+tg.tiles+'장';
+  qs('#'+sub+'All').textContent=tg.tiles+'장 모두 완료';
+  var note=qs('#'+sub+'Note');
+  var cls='pg-note', msg;
+  if(tg.five){
+    if(n>=5){ msg='5장 완료! 약속을 지켰어요.'; cls+=' ok'; }
+    else { msg='어제 3장만 해서 오늘은 5장을 모두 해야 완료예요.'; cls+=' warn'; }
+  } else if(n<3){
+    msg='3장만 해도 완료예요. (4장은 선택)';
+  } else if(n===3){
+    msg='3장 완료! 대신 내일은 5장을 해야 해요.'; cls+=' warn';
+  } else {
+    msg='4장 완료! 최고예요.'; cls+=' ok';
+  }
+  note.className=cls;
+  note.textContent=msg;
 }
 
 function renderHomework(){
@@ -1658,10 +1705,8 @@ function renderHomework(){
   }
   qs('#knList').innerHTML=knHtml;
 
-  qs('#korPages').innerHTML=pagesHtml('kor',d.kor);
-  qs('#mathPages').innerHTML=pagesHtml('math',d.math);
-  qs('#korCount').textContent=countPages(d.kor)+'/4장';
-  qs('#mathCount').textContent=countPages(d.math)+'/4장';
+  renderPagesGroup('kor',d.kor);
+  renderPagesGroup('math',d.math);
 
   var st=hwStats();
   qs('#hwBar').style.width=st.pct+'%';
@@ -1704,13 +1749,14 @@ function togglePage(sub,n){
 function completePages(sub){
   var d=ensureDay(todayKey());
   var map=(sub==='kor')?d.kor:d.math;
+  var tg=pageTarget(sub);
   var all=true;
-  for(var i=1;i<=4;i++){ if(!map[i]) all=false; }
+  for(var i=1;i<=tg.tiles;i++){ if(!map[i]) all=false; }
   if(all){
-    toast((sub==='kor'?'국어':'수학')+' 4장을 이미 다 했어요!');
+    toast((sub==='kor'?'국어':'수학')+' '+tg.tiles+'장을 이미 다 했어요!');
     return;
   }
-  for(var m=1;m<=4;m++) map[m]=true;
+  for(var m=1;m<=tg.tiles;m++) map[m]=true;
   save();
   renderHomework();
   stampAt((sub==='kor')?'#korPages':'#mathPages');
