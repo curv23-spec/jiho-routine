@@ -13,11 +13,13 @@
     },
     {
       "id": "kn_epoly_phonics",
-      "text": "주말까지 e-POLY Phonics Week 12"
+      "text": "주말까지 e-POLY Phonics Week 12",
+      "scope": "weekend"
     },
     {
       "id": "kn_epoly_action",
-      "text": "주말까지 e-POLY Action Time Week 12"
+      "text": "주말까지 e-POLY Action Time Week 12",
+      "scope": "weekend"
     },
     {
       "id": "kn_tongue",
