@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2026-11-19T16:10:00+09:00",
+  "date": "2026-11-19",
+  "dateLabel": "11월 19일(목)",
+  "kidsnote": [
+    { "id": "kn_epoly_lesson", "text": "e-POLY 오늘의 레슨 (English Unit 1 Lesson 6 Reading)" },
+    { "id": "kn_spelling_test", "text": "Spelling Test 연습 5문항 (내일 11/20 금)" },
+    { "id": "kn_epoly_phonics", "text": "주말까지 e-POLY Phonics Week 12" },
+    { "id": "kn_epoly_action", "text": "주말까지 e-POLY Action Time Week 12" }
+  ],
+  "note": "내일(11/20 금) 자유복 등원 · Spelling Test 5문항: shine / prize / wise / \"This plant can't be picked.\" / \"But it is as big as we are!\" · 실내화·양치컵 가정으로 보내는 날",
+  "prep": {
+    "mon": ["체육복 입고 가기", "실내화·양치컵 씻어서 가져가기 (격주 월)", "주말 Worksheets·Diary 챙기기"],
+    "tue": ["원복 입고 가기"],
+    "wed": ["체육복 입고 가기"],
+    "thu": ["원복 입고 가기"],
+    "fri": ["자유복 입고 가기", "Spelling Test 있는 날", "실내화·양치컵 맡기기 (격주 금)"],
+    "sat": [],
+    "sun": ["주말 숙제 마무리 (Phonics·Action Time·Worksheets·Diary)"]
+  }
+}
