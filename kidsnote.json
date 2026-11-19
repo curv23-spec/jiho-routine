@@ -12,8 +12,9 @@
       "text": "내일 Spelling Test 5문항 연습 (대문자·띄어쓰기·문장부호 주의)"
     },
     {
-      "id": "kn_tongue",
-      "text": "11/23(월) Tongue Twister 'Busy buzzing bumblebees' 4번"
+      "id": "kn_poly_books",
+      "text": "폴리책 3권 읽고 문제풀기",
+      "scope": "weekday"
     },
     {
       "id": "kn_epoly_phonics",

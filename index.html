@@ -273,6 +273,7 @@ svg{display:block;}
 .kn-note{display:none;margin:0 0 10px;padding:11px 14px;border-radius:16px;background:#F3F0FF;border:3px solid #DAD0FF;font-size:15px;font-weight:800;color:#4B3E86;line-height:1.45;word-break:keep-all;}
 .kn-weekend{margin:0;padding:8px 12px;border-radius:14px;background:#F7F5FF;border:2px dashed #DAD0FF;font-size:13.5px;font-weight:900;color:#6B5CA8;line-height:1.4;word-break:keep-all;}
 .kn-weekend.done{background:#EAFBF1;border-color:#A9E7C2;color:#1B7A48;}
+.kn-weekday{margin:0;padding:8px 12px;border-radius:14px;background:#F5FAFF;border:2px dashed #C9DEF7;font-size:13.5px;font-weight:900;color:#3A6592;line-height:1.4;word-break:keep-all;}
 .prep-item .ptext{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .prep-badge{font-size:11px;font-weight:900;color:#7B5CD6;background:#F3F0FF;border:2px solid #DAD0FF;border-radius:999px;padding:3px 7px;white-space:nowrap;}
 .prep-item.remote{background:#FBFAFF;border-color:#E3D8FF;}
@@ -991,7 +992,7 @@ function weekdayKo(jsDay){ return DAY_KO[jsDay]; }
 /* ---------- state ---------- */
 function normalizeItem(it,i){
   var icon=(it && ICONS.indexOf(it.icon)>=0)? it.icon : ICONS[i%ICONS.length];
-  var scope=(it && (it.scope==='weekend'||it.scope==='daily'))? it.scope : '';
+  var scope=(it && knScopeOk(it.scope))? it.scope : '';
   return {id:(it&&it.id)?String(it.id):('x'+i+'-'+Date.now().toString(36)), label:String(it.label).trim(), icon:icon, scope:scope};
 }
 function validItem(it){ return it && typeof it.label==='string' && it.label.trim().length>0; }
@@ -1005,7 +1006,7 @@ function normalizeKidsnote(p){
   if(!p || typeof p!=='object') return out;
   if(Array.isArray(p.items)){
     out.items=p.items.filter(validItem).map(function(it,i){
-      var scope=(it.scope==='weekend'||it.scope==='daily')?it.scope:'';
+      var scope=knScopeOk(it.scope)?it.scope:'';
       return {id:(it.id?String(it.id):'kn_'+i), label:String(it.label).trim(), scope:scope};
     });
   }
@@ -1190,16 +1191,18 @@ function knStamp(ts){
   return (d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes());
 }
 
-/* ---------- 주말 숙제(scope:"weekend") 표시 규칙 ----------
-   · 월~금 : 목록에도, 진행률/완료 카운트에도 넣지 않는다.
-   · 토요일: 목록에 보여 주고, 체크는 그 토요일 날짜 기록(state.days[토요일].kn)에 남긴다.
-   · 일요일: 토요일에 체크한 항목이면 숨기고(카운트 제외), 아니면 다시 보여 준다.
-   · 월요일 이후: 토·일 완료 여부와 상관없이 숨긴다.
+/* ---------- 숙제 scope(표시 요일) 규칙 ----------
+   "daily"  : 매일 표시(기본)
+   "weekend": 월~금 숨김 → 토요일 표시 → 일요일은 토요일에 끝낸 것만 숨김 → 월요일 이후 숨김
+   "weekday": 월~금요일(1~5)에만 표시, 토·일요일(0, 6)에는 숨김(진행률·완료 카운트에서도 제외)
    JSON 항목은 scope 값으로만 판단하고, scope가 없는 항목은 문장에 '주말'이 있으면
-   주말 숙제로 본다(예전 저장본·기본 숙제 호환). scope:"daily"는 항상 매일 숙제. */
+   주말 숙제로 본다(예전 저장본·기본 숙제 호환). */
+var KN_SCOPES=['weekend','weekday','daily'];
+function knScopeOk(sc){ return KN_SCOPES.indexOf(sc)>=0; }
+
 function knScopeOf(it){
   if(!it) return 'daily';
-  if(it.scope==='weekend'||it.scope==='daily') return it.scope;
+  if(knScopeOk(it.scope)) return it.scope;
   return /주말/.test(String(it.label||'')) ? 'weekend' : 'daily';
 }
 
@@ -1214,7 +1217,9 @@ function knDoneOn(key,id){
 }
 
 function knShownOn(it, jsDay){
-  if(knScopeOf(it)!=='weekend') return true;
+  var sc=knScopeOf(it);
+  if(sc==='weekday') return jsDay>=1 && jsDay<=5;  /* 평일 숙제: 월~금만 */
+  if(sc!=='weekend') return true;
   if(jsDay===6) return true;                       /* 토요일 */
   if(jsDay===0) return !knDoneOn(knWeekSatKey(), it.id);  /* 일요일: 토요일에 안 했으면 표시 */
   return false;                                    /* 월~금 */
@@ -1240,6 +1245,16 @@ function knHiddenWeekendCount(){
   return n;
 }
 
+function knHiddenWeekdayCount(){
+  var all=state.settings.kn||[];
+  var jsDay=new Date().getDay();
+  var n=0;
+  for(var i=0;i<all.length;i++){
+    if(knScopeOf(all[i])==='weekday' && !knShownOn(all[i], jsDay)) n++;
+  }
+  return n;
+}
+
 function applyKidsnote(data){
   if(!data || typeof data!=='object') return false;
   var list=null;
@@ -1258,7 +1273,7 @@ function applyKidsnote(data){
     else if(raw && typeof raw==='object'){
       text=String(raw.text||raw.label||raw.title||'');
       id=raw.id?String(raw.id):'';
-      if(raw.scope==='weekend'||raw.scope==='daily') scope=raw.scope;
+      if(knScopeOk(raw.scope)) scope=raw.scope;
     }
     text=text.trim();
     if(!text) continue;
@@ -1636,6 +1651,10 @@ function renderHomework(){
     } else {
       knHtml+='<p class="kn-weekend">주말 숙제 '+hiddenKn+'개는 토요일부터 보여요.</p>';
     }
+  }
+  var hiddenWeekday=knHiddenWeekdayCount();
+  if(hiddenWeekday>0){
+    knHtml+='<p class="kn-weekday">평일 숙제 '+hiddenWeekday+'개는 월요일부터 보여요.</p>';
   }
   qs('#knList').innerHTML=knHtml;
 
@@ -2061,7 +2080,7 @@ function makeEditRow(item, listName, index){
   inp.setAttribute('data-list',listName);
   if(item && item.id) inp.setAttribute('data-id',item.id);
   inp.setAttribute('data-icon',(item&&item.icon&&ICONS.indexOf(item.icon)>=0)?item.icon:ICONS[index%ICONS.length]);
-  if(item && (item.scope==='weekend'||item.scope==='daily')) inp.setAttribute('data-scope',item.scope);
+  if(item && knScopeOk(item.scope)) inp.setAttribute('data-scope',item.scope);
   inp.placeholder=(listName==='morning')?'예: 물병 챙기기':'예: 받아쓰기 10문제';
 
   var del=document.createElement('button');
@@ -2139,7 +2158,7 @@ function collectList(sel, prefix){
     var icon=inp.getAttribute('data-icon');
     if(!icon || ICONS.indexOf(icon)<0) icon=ICONS[i%ICONS.length];
     var scope=inp.getAttribute('data-scope')||'';
-    if(scope!=='weekend' && scope!=='daily') scope='';
+    if(!knScopeOk(scope)) scope='';
     out.push({id:id,label:v,icon:icon,scope:scope});
   }
   return out;
