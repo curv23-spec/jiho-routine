@@ -1241,7 +1241,9 @@ function renderKnSync(){
   var box=qs('#knSync'), txt=qs('#knSyncTxt'), when=qs('#knWhen');
   if(!box || !txt) return;
   var kn=state.kidsnote||emptyKidsnote();
-  var at=kn.fetchedAt?knStamp(kn.fetchedAt):'';
+  var fetched=kn.fetchedAt?knStamp(kn.fetchedAt):'';
+  var up=kn.updatedAt?new Date(kn.updatedAt):null;
+  var at=(up && !isNaN(up.getTime()))?knStamp(up.getTime()):fetched;
   var status=ui.knState||'';
   box.className='kn-sync'+(status?' '+status:'');
   if(status==='busy'){
