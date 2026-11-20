@@ -1,16 +1,8 @@
 {
-  "updatedAt": "2026-11-19T18:01:31+09:00",
-  "date": "2026-11-19",
-  "dateLabel": "11월 19일(목)",
+  "updatedAt": "2026-11-20T18:01:51+09:00",
+  "date": "2026-11-20",
+  "dateLabel": "11월 20일(금)",
   "kidsnote": [
-    {
-      "id": "kn_epoly_lesson",
-      "text": "오늘 영어 온라인 레슨 (Unit 1 Lesson 6 Reading Check)"
-    },
-    {
-      "id": "kn_spelling_test",
-      "text": "내일 Spelling Test 5문항 연습 (대문자·띄어쓰기·문장부호 주의)"
-    },
     {
       "id": "kn_poly_books",
       "text": "폴리책 3권 읽고 문제풀기",
@@ -18,39 +10,34 @@
     },
     {
       "id": "kn_epoly_phonics",
-      "text": "주말까지 영어 온라인 Phonics Week 12",
+      "text": "주말까지 e-POLY Phonics Week 12",
       "scope": "weekend"
     },
     {
       "id": "kn_epoly_action",
-      "text": "주말까지 영어 온라인 Action Time Week 12",
+      "text": "주말까지 e-POLY Action Time Week 12",
+      "scope": "weekend"
+    },
+    {
+      "id": "kn_epoly_u1l6",
+      "text": "English Unit 1 Lesson 6 (Words to Know~Reading Check) 복습",
+      "scope": "weekend"
+    },
+    {
+      "id": "kn_writing_monster",
+      "text": "Writing Monster 워크시트 풀고 답안지로 확인",
+      "scope": "weekend"
+    },
+    {
+      "id": "kn_spelling",
+      "text": "다음 주 Spelling Test 5문항 연습 (grandson, finish, catch, 두 문장)",
       "scope": "weekend"
     }
   ],
-  "note": "내일(11/20 금) 자유복 등원 · Spelling Test 5문항: shine / prize / wise / \"This plant can't be picked.\" / \"But it is as big as we are!\" · 실내화·양치컵 가정으로 보내는 날",
-  "prep": {
-    "mon": [
-      "체육복 입고 가기",
-      "실내화·양치컵 씻어서 가져가기 (격주 월)",
-      "주말 Worksheets·Diary 챙기기"
-    ],
-    "tue": [
-      "원복 입고 가기"
-    ],
-    "wed": [
-      "체육복 입고 가기"
-    ],
-    "thu": [
-      "원복 입고 가기"
-    ],
-    "fri": [
-      "자유복 입고 가기",
-      "Spelling Test 있는 날",
-      "실내화·양치컵 맡기기 (격주 금)"
-    ],
-    "sat": [],
-    "sun": [
-      "주말 숙제 마무리 (Phonics·Action Time·Worksheets·Diary)"
-    ]
-  }
+  "note": "11/23(월) Tongue Twister 'Busy buzzing bumblebees' 4번 · 11/25(수) 12월 수강료 납부 마감 · 11/27(금) Thanksgiving Day",
+  "supplies": [
+    "11/23(월) 체육복 등원",
+    "실내화·양치컵 세척 후 지참",
+    "Writing Monster·Worksheets·Diary 지참"
+  ]
 }
