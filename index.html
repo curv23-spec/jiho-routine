@@ -277,6 +277,9 @@ svg{display:block;}
 .kn-reload:active{transform:scale(.96);}
 .kn-note{display:none;margin:0 0 10px;padding:11px 14px;border-radius:16px;background:#F3F0FF;border:3px solid #DAD0FF;font-size:15px;font-weight:800;color:#4B3E86;line-height:1.45;word-break:keep-all;}
 .kn-weekend{margin:0;padding:8px 12px;border-radius:14px;background:#F7F5FF;border:2px dashed #DAD0FF;font-size:13.5px;font-weight:900;color:#6B5CA8;line-height:1.4;word-break:keep-all;}
+.hw-row.optional{border-style:dashed;}
+.opt-tag{display:inline-block;margin-left:8px;font-size:12px;font-weight:900;padding:2px 9px;border-radius:999px;background:#EEF1F8;color:#6A7288;vertical-align:middle;white-space:nowrap;}
+.opt-tag.must{background:#FFE9E9;color:#C82222;}
 .kn-weekend.done{background:#EAFBF1;border-color:#A9E7C2;color:#1B7A48;}
 .kn-weekday{margin:0;padding:8px 12px;border-radius:14px;background:#F5FAFF;border:2px dashed #C9DEF7;font-size:13.5px;font-weight:900;color:#3A6592;line-height:1.4;word-break:keep-all;}
 .prep-item .ptext{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -1200,7 +1203,7 @@ function knStamp(ts){
 
 /* ---------- 숙제 scope(표시 요일) 규칙 ----------
    "daily"  : 매일 표시(기본)
-   "weekend": 월~금 숨김 → 토요일 표시 → 일요일은 토요일에 끝낸 것만 숨김 → 월요일 이후 숨김
+   "weekend": 월~금 숨김 → 토요일 표시(선택, 진행률 제외) → 일요일은 토요일에 끝낸 것만 숨김, 못 한 건 필수 → 월요일 이후 숨김
    "weekday": 월~금요일(1~5)에만 표시, 토·일요일(0, 6)에는 숨김(진행률·완료 카운트에서도 제외)
    JSON 항목은 scope 값으로만 판단하고, scope가 없는 항목은 문장에 '주말'이 있으면
    주말 숙제로 본다(예전 저장본·기본 숙제 호환). */
@@ -1238,6 +1241,25 @@ function knVisible(){
   var out=[];
   for(var i=0;i<all.length;i++){
     if(knShownOn(all[i], jsDay)) out.push(all[i]);
+  }
+  return out;
+}
+
+/* 주말 숙제: 토요일은 선택(진행률·유튜브 열쇠에 포함 안 됨),
+   토요일에 안 한 것은 일요일에 필수 */
+function knRole(it){
+  if(knScopeOf(it)!=='weekend') return '';
+  var jsDay=new Date().getDay();
+  if(jsDay===6) return 'optional';
+  if(jsDay===0) return 'must';
+  return '';
+}
+
+function knRequired(){
+  var all=knVisible();
+  var out=[];
+  for(var i=0;i<all.length;i++){
+    if(knRole(all[i])!=='optional') out.push(all[i]);
   }
   return out;
 }
@@ -1609,7 +1631,7 @@ function pageTarget(sub){
 
 function hwStats(){
   var d=ensureDay(todayKey());
-  var kn=knVisible();
+  var kn=knRequired();
   var tk=pageTarget('kor'), tm=pageTarget('math');
   var total=kn.length+tk.need+tm.need;
   var done=0;
@@ -1680,10 +1702,17 @@ function renderHomework(){
   for(var i=0;i<kn.length;i++){
     var it=kn[i];
     var done=!!d.kn[it.id];
-    knHtml+='<button type="button" class="hw-row'+(done?' done':'')+'" data-act="kn" data-id="'+esc(it.id)+'" aria-pressed="'+(done?'true':'false')+'">'
+    var role=knRole(it);
+    var tag=(role==='optional')?'<span class="opt-tag">선택</span>':(role==='must'?'<span class="opt-tag must">필수</span>':'');
+    knHtml+='<button type="button" class="hw-row'+(done?' done':'')+(role==='optional'?' optional':'')+'" data-act="kn" data-id="'+esc(it.id)+'" aria-pressed="'+(done?'true':'false')+'">'
       +'<span class="hbox">'+(done?CHECK_SVG:'')+'</span>'
-      +'<span class="htext">'+esc(it.label)+'</span>'
+      +'<span class="htext">'+esc(it.label)+tag+'</span>'
       +'</button>';
+  }
+  var optCount=0;
+  for(var oi=0;oi<kn.length;oi++){ if(knRole(kn[oi])==='optional') optCount++; }
+  if(optCount>0){
+    knHtml+='<p class="kn-weekend">주말 숙제는 토·일 안에 하면 돼요. 오늘은 선택이지만, 토요일에 안 한 건 일요일에 꼭 해야 해요.</p>';
   }
   if(!kn.length){
     knHtml=allKn.length
