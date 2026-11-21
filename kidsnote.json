@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-11-20T18:01:51+09:00",
-  "date": "2026-11-20",
-  "dateLabel": "11월 20일(금)",
+  "updatedAt": "2026-11-21T18:00:00+09:00",
+  "date": "2026-11-21",
+  "dateLabel": "11월 21일(토)",
   "kidsnote": [
     {
       "id": "kn_poly_books",
@@ -34,10 +34,13 @@
       "scope": "weekend"
     }
   ],
-  "note": "11/23(월) Tongue Twister 'Busy buzzing bumblebees' 4번 · 11/25(수) 12월 수강료 납부 마감 · 11/27(금) Thanksgiving Day",
-  "supplies": [
-    "11/23(월) 체육복 등원",
-    "실내화·양치컵 세척 후 지참",
-    "Writing Monster·Worksheets·Diary 지참"
-  ]
+  "note": "월요일(11/23)은 체육복 등원 · 비 90% 예보라 우산 챙기기 · 11/23 Tongue Twister 'Busy buzzing bumblebees' 4번 · 11/25(수) 12월 수강료 납부 마감 · 11/27(금) Thanksgiving Day",
+  "prep": {
+    "mon": [
+      "체육복 입고 등원",
+      "실내화·양치컵 씻어서 지참",
+      "Writing Monster·Worksheets·Diary 지참",
+      "우산 챙기기 (비 예보)"
+    ]
+  }
 }
