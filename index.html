@@ -227,6 +227,37 @@ svg{display:block;}
 .yt-web-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #FFC2C2;}
 
 /* ---------- reward ---------- */
+/* ---------- badges ---------- */
+.pages.three{grid-template-columns:repeat(3,1fr);}
+.badge-box{margin-top:14px;border-top:2px dashed #F1EDE1;padding-top:12px;}
+.badge-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:17px;font-weight:900;}
+.stamp-dots{display:flex;align-items:center;gap:7px;margin:8px 0 2px;font-size:14px;font-weight:800;color:var(--ink2);flex-wrap:wrap;}
+.sdot{width:22px;height:22px;border-radius:50%;border:3px dashed #E3DECC;background:#fff;}
+.sdot.on{border:3px solid #E8A800;background:#FFE27A;}
+.badge-pick{width:100%;margin:10px 0 4px;min-height:60px;border:none;border-radius:18px;background:linear-gradient(135deg,#FF8A4C,#E8501E);color:#fff;font-size:20px;font-weight:900;box-shadow:0 6px 0 #B53B12;cursor:pointer;animation:pulse 1.2s ease infinite;}
+.badge-pick:active{transform:translateY(4px);box-shadow:0 2px 0 #B53B12;}
+.badge-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px;}
+.bdg{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px 5px;border-radius:14px;background:#FBFAF5;border:2px solid #F0ECDF;min-width:0;}
+.bdg svg{width:100%;max-width:56px;height:auto;}
+.bdg span{font-size:11.5px;font-weight:900;color:var(--ink);letter-spacing:-.4px;white-space:nowrap;}
+.bdg.locked{opacity:.5;}
+.bdg.locked span{color:#8B93A8;}
+.bdg-btn{cursor:pointer;font:inherit;color:inherit;}
+.bdg-btn:active{transform:scale(.95);}
+.goals{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.goal{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:#FFFDF6;border:3px solid var(--line);}
+.goal.got{background:var(--mint);border-color:#9EE6BC;}
+.goal .g-num{flex:0 0 auto;min-width:54px;font-size:15px;font-weight:900;color:#8A6A00;background:#FFF3BF;border-radius:999px;padding:5px 10px;text-align:center;}
+.goal.got .g-num{background:#C9F3DA;color:#1B7A48;}
+.goal .g-txt{flex:1;font-size:15.5px;font-weight:900;line-height:1.3;word-break:keep-all;}
+.goal .g-st{font-size:13px;font-weight:900;color:#8B93A8;white-space:nowrap;}
+.goal.got .g-st{color:#1B7A48;}
+.pick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;}
+.pick-grid .bdg{padding:10px 4px 8px;}
+.pick-grid .bdg svg{max-width:78px;}
+.pick-grid .bdg span{font-size:14px;}
+.bdg-big{width:120px;height:120px;margin:0 auto 6px;}
+@media (max-width:520px){ .badge-grid{grid-template-columns:repeat(4,1fr);} .pick-grid{grid-template-columns:repeat(3,1fr);} }
 .reward-body{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:6px;}
 .stamp-total{flex:1;min-width:190px;display:flex;align-items:center;gap:11px;background:linear-gradient(135deg,#FFF8D2,#FFEBA0);border:3px solid var(--yellow);border-radius:22px;padding:11px 15px;}
 .stamp-total svg{width:58px;height:58px;flex:0 0 58px;}
@@ -744,6 +775,14 @@ body.locked{overflow:hidden;}
         <div class="week" id="weekGrid"></div>
       </div>
       <p class="reward-hint" id="rewardHint">아침 루틴을 모두 끝내면 마스터 도장이 찍혀요!</p>
+
+      <div class="badge-box">
+        <div class="badge-head"><span>포켓몬 뱃지</span><span class="pill" id="badgeCount">0/20</span></div>
+        <div class="stamp-dots" id="stampDots"></div>
+        <button type="button" class="badge-pick" id="badgePickBtn" data-act="badge-pick" hidden>새 뱃지 고르기!</button>
+        <div class="badge-grid" id="badgeGrid"></div>
+        <div class="goals" id="goals"></div>
+      </div>
     </section>
 
     <!-- 요일별 준비물 -->
@@ -827,6 +866,21 @@ body.locked{overflow:hidden;}
       <button data-act="reset-all">모든 기록 지우기</button>
     </div>
   </div>
+</div>
+
+<!-- ============ 뱃지 고르기 / 뱃지 축하 ============ -->
+<div class="modal" id="badgeModal" role="dialog" aria-modal="true" aria-label="뱃지 고르기">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>어떤 뱃지를 받을까요?</h2>
+      <button class="close" data-act="close-badge" aria-label="닫기">✕</button>
+    </div>
+    <p class="card-sub" id="pickSub">도장 3개를 모았어요! 마음에 드는 포켓몬 뱃지를 하나 골라요.</p>
+    <div class="pick-grid" id="pickGrid"></div>
+  </div>
+</div>
+<div class="celebrate" id="badgeCelebrate">
+  <div class="celebrate-card" id="badgeCelebrateCard"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1029,8 +1083,116 @@ function normalizeKidsnote(p){
   return out;
 }
 
+/* ---------- 포켓몬 뱃지 ----------
+   도장 3개 = 뱃지 1개 (20종 중 직접 고르기)
+   뱃지 5개 = 포켓몬카드 1세트, 10개 = 포켓몬 인형 구매 기회
+   그림은 캐릭터가 아닌 타입 문양 + 이름으로 표시 */
+var STAMPS_PER_BADGE=3;
+var BADGE_TYPES={
+  electric:{c:'#FFD93B',d:'#C99A00',p:'M26 5 L11 27 H22 L18 43 L37 19 H26 Z'},
+  fire:{c:'#FF8A4C',d:'#D4511E',p:'M24 5 C26 14 37 18 37 29 A13 13 0 0 1 11 29 C11 22 16 20 17 13 C20 18 22 16 24 5 Z'},
+  water:{c:'#5BA8FF',d:'#2F6FD0',p:'M24 5 C32 18 39 24 39 31 A15 15 0 0 1 9 31 C9 24 16 18 24 5 Z'},
+  grass:{c:'#5FCB8D',d:'#2AA061',p:'M9 39 C9 19 22 8 41 8 C41 27 30 39 9 39 Z'},
+  normal:{c:'#D9C7A6',d:'#8E7A5C',p:'M24 8 A16 16 0 1 0 24 40 A16 16 0 1 0 24 8 Z M24 17 A7 7 0 1 1 24 31 A7 7 0 1 1 24 17 Z'},
+  fighting:{c:'#EE7C86',d:'#B23B45',p:'M10 14 L14 10 L24 20 L34 10 L38 14 L28 24 L38 34 L34 38 L24 28 L14 38 L10 34 L20 24 Z'},
+  psychic:{c:'#D58CF5',d:'#9A4DC9',p:'M24 8 A16 16 0 1 0 24 40 A16 16 0 1 0 24 8 Z M24 15 A9 9 0 1 1 24 33 A9 9 0 1 1 24 15 Z M24 21 A3 3 0 1 0 24 27 A3 3 0 1 0 24 21 Z'},
+  ghost:{c:'#A99CE0',d:'#5E4FA8',p:'M9 41 V22 A15 15 0 0 1 39 22 V41 L32 35 L24 41 L16 35 Z'},
+  dragon:{c:'#8D9BFF',d:'#4A55C9',p:'M24 5 L42 24 L24 43 L6 24 Z'},
+  flying:{c:'#A8D6FF',d:'#5B8FD6',p:'M5 30 C14 28 20 22 24 8 C28 22 34 28 43 30 C34 32 28 36 24 42 C20 36 14 32 5 30 Z'}
+};
+var BADGES=[
+  {id:'pikachu',name:'피카츄',t:'electric'},{id:'charmander',name:'파이리',t:'fire'},
+  {id:'squirtle',name:'꼬부기',t:'water'},{id:'bulbasaur',name:'이상해씨',t:'grass'},
+  {id:'eevee',name:'이브이',t:'normal'},{id:'snorlax',name:'잠만보',t:'normal'},
+  {id:'lucario',name:'루카리오',t:'fighting'},{id:'gyarados',name:'갸라도스',t:'water'},
+  {id:'charizard',name:'리자몽',t:'fire'},{id:'mewtwo',name:'뮤츠',t:'psychic'},
+  {id:'mew',name:'뮤',t:'psychic'},{id:'psyduck',name:'고라파덕',t:'water'},
+  {id:'jigglypuff',name:'푸린',t:'normal'},{id:'gengar',name:'팬텀',t:'ghost'},
+  {id:'ditto',name:'메타몽',t:'normal'},{id:'lapras',name:'라프라스',t:'water'},
+  {id:'dragonite',name:'망나뇽',t:'dragon'},{id:'greninja',name:'개굴닌자',t:'water'},
+  {id:'raichu',name:'라이츄',t:'electric'},{id:'pidgeot',name:'피죤투',t:'flying'}
+];
+var GOALS=[
+  {need:5, label:'포켓몬카드 1세트'},
+  {need:10, label:'포켓몬스터 인형 1개 살 수 있는 기회'}
+];
+
+function badgeById(id){
+  for(var i=0;i<BADGES.length;i++){ if(BADGES[i].id===id) return BADGES[i]; }
+  return null;
+}
+
+function badgeSvg(b,locked){
+  var ty=BADGE_TYPES[b.t]||BADGE_TYPES.normal;
+  var fill=locked?'#EEEBE0':ty.c, edge=locked?'#CFC9B6':ty.d, icon=locked?'#CFC9B6':'#fff';
+  return '<svg viewBox="0 0 100 100" aria-hidden="true">'
+    +'<circle cx="50" cy="50" r="45" fill="'+fill+'" stroke="'+edge+'" stroke-width="6"/>'
+    +'<circle cx="50" cy="50" r="36" fill="none" stroke="'+edge+'" stroke-width="2.4" stroke-dasharray="4 5"/>'
+    +'<g transform="translate(26 26) scale(1)"><path d="'+ty.p+'" fill="'+icon+'" stroke="'+edge+'" stroke-width="2.6" stroke-linejoin="round" fill-rule="evenodd"/></g>'
+    +'</svg>';
+}
+
+function badgePending(){
+  var earned=Math.floor(Object.keys(state.stamps).length/STAMPS_PER_BADGE);
+  var left=BADGES.length-state.badges.length;
+  return Math.max(0,Math.min(earned-state.badges.length,left));
+}
+
+function openBadgePicker(){
+  if(badgePending()<=0) return;
+  var html='';
+  for(var i=0;i<BADGES.length;i++){
+    var b=BADGES[i];
+    if(state.badges.indexOf(b.id)>=0) continue;
+    html+='<button type="button" class="bdg bdg-btn" data-act="badge-take" data-id="'+b.id+'">'+badgeSvg(b,false)+'<span>'+esc(b.name)+'</span></button>';
+  }
+  qs('#pickGrid').innerHTML=html;
+  qs('#pickSub').textContent='도장 '+STAMPS_PER_BADGE+'개를 모았어요! 마음에 드는 포켓몬 뱃지를 하나 골라요.';
+  qs('#badgeModal').classList.add('show');
+  document.body.classList.add('locked');
+}
+
+function closeBadgePicker(){
+  qs('#badgeModal').classList.remove('show');
+  if(!qs('#settingsModal').classList.contains('show')) document.body.classList.remove('locked');
+}
+
+function takeBadge(id){
+  var b=badgeById(id);
+  if(!b || state.badges.indexOf(id)>=0 || badgePending()<=0) return;
+  state.badges.push(id);
+  save();
+  closeBadgePicker();
+  renderReward();
+  var n=state.badges.length;
+  var reward='';
+  for(var i=0;i<GOALS.length;i++){ if(GOALS[i].need===n) reward=GOALS[i].label; }
+  var card=qs('#badgeCelebrateCard');
+  card.innerHTML='<div class="bdg-big">'+badgeSvg(b,false)+'</div>'
+    +'<h2>'+esc(b.name)+' 뱃지 획득!</h2>'
+    +'<p>'+(reward?('뱃지 '+n+'개를 모았어요!<br><b>'+esc(reward)+'</b> 보상을 받을 수 있어요. 부모님께 보여 주세요!'):('뱃지 '+n+'개째예요. 잘했어요, 지호 트레이너!'))+'</p>'
+    +'<button class="btn-ghost" data-act="close-badge-cel">좋아요!</button>';
+  qs('#badgeCelebrate').classList.add('show');
+  burst(reward?150:90);
+  blip(784);
+  setTimeout(function(){ blip(988); },120);
+  setTimeout(function(){ blip(1318); },250);
+}
+
+function isWeekend(){
+  var g=new Date().getDay();
+  return g===0 || g===6;
+}
+
+function weekendNote(nowMin){
+  if(nowMin<6*60) return '아직 새벽이에요. 푹 자요!';
+  if(nowMin<12*60) return '즐거운 주말 아침! 숙제는 천천히 해도 돼요.';
+  if(nowMin>=21*60) return '잘 준비하고 푹 자요. 내일 만나요!';
+  return '주말 숙제 시간! 다 끝내면 유튜브가 열려요.';
+}
+
 function loadState(){
-  var base={settings:clone(DEFAULT_SETTINGS), days:{}, stamps:{}, weather:null, kidsnote:emptyKidsnote()};
+  var base={settings:clone(DEFAULT_SETTINGS), days:{}, stamps:{}, badges:[], weather:null, kidsnote:emptyKidsnote()};
   var raw=null;
   try{ raw=localStorage.getItem(KEY); }catch(e){}
   if(raw){
@@ -1052,6 +1214,9 @@ function loadState(){
         }
         if(p.days && typeof p.days==='object') base.days=p.days;
         if(p.stamps && typeof p.stamps==='object') base.stamps=p.stamps;
+        if(Array.isArray(p.badges)){
+          p.badges.forEach(function(id){ if(badgeById(id) && base.badges.indexOf(id)<0) base.badges.push(id); });
+        }
         if(p.weather && typeof p.weather==='object' && p.weather.data) base.weather=p.weather;
         if(p.kidsnote && typeof p.kidsnote==='object') base.kidsnote=normalizeKidsnote(p.kidsnote);
       }
@@ -1063,7 +1228,7 @@ function loadState(){
 function save(){
   try{
     localStorage.setItem(KEY, JSON.stringify({
-      settings:state.settings, days:state.days, stamps:state.stamps, weather:state.weather, kidsnote:state.kidsnote
+      settings:state.settings, days:state.days, stamps:state.stamps, badges:state.badges, weather:state.weather, kidsnote:state.kidsnote
     }));
   }catch(e){}
 }
@@ -1447,6 +1612,7 @@ function bandNote(nowMin, allDone, remaining){
 }
 
 function viewMode(totalMin){
+  if(isWeekend()) return 'evening';   /* 토·일: 아침 준비 없음 */
   return (totalMin>=MORNING_FROM && totalMin<EVENING_FROM) ? 'morning' : 'evening';
 }
 
@@ -1481,8 +1647,8 @@ function updateHero_evening(nowMin){
     cd.textContent='남은 숙제 '+st.remain+'개';
     cd.className='countdown';
   }
-  var note=bandNote(nowMin,false,0);
-  if(allDone && nowMin>=EVENING_FROM) note='숙제 모두 완료! 정말 대단해요, 지호 트레이너!';
+  var note=isWeekend()?weekendNote(nowMin):bandNote(nowMin,false,0);
+  if(allDone && (nowMin>=EVENING_FROM || isWeekend())) note='숙제 모두 완료! 정말 대단해요, 지호 트레이너!';
   qs('#gaugeNote').textContent=note;
   var gb=qs('#gaugeBox');
   if(gb) gb.classList.remove('off');
@@ -1547,6 +1713,8 @@ function updateHeader(now){
 
 /* ---------- morning ---------- */
 function renderMorning(){
+  var mcard=qs('#morningCard');
+  if(mcard){ if(isWeekend()) mcard.setAttribute('hidden',''); else mcard.removeAttribute('hidden'); }
   var d=ensureDay(todayKey());
   var items=state.settings.morning;
   var grid=qs('#routineGrid');
@@ -1602,6 +1770,7 @@ function toggleRoutine(id){
       burst(70);
       setTimeout(function(){ blip(1175); },130);
       setTimeout(function(){ blip(1397); },260);
+      setTimeout(function(){ if(badgePending()>0) openBadgePicker(); },1500);
     }
   } else {
     blip(420);
@@ -1623,6 +1792,7 @@ function yesterdayKey(){
 }
 
 function pageTarget(sub){
+  if(sub==='kor') return {tiles:3, need:3, five:false, fixed:true};  /* 국어: 하루 3장 */
   var y=state.days[yesterdayKey()];
   var ym=(y && y[sub] && typeof y[sub]==='object')?y[sub]:null;
   var five=!!ym && countPages(ym)===3;
@@ -1674,13 +1844,16 @@ function renderPagesGroup(sub,map){
   var tg=pageTarget(sub);
   var n=countPages(map);
   var box=qs('#'+sub+'Pages');
-  box.className='pages'+(tg.five?' five':'');
+  box.className='pages'+(tg.five?' five':'')+(tg.tiles===3?' three':'');
   box.innerHTML=pagesHtml(sub,map,tg);
   qs('#'+sub+'Count').textContent=n+'/'+tg.tiles+'장';
   qs('#'+sub+'All').textContent=tg.tiles+'장 모두 완료';
   var note=qs('#'+sub+'Note');
   var cls='pg-note', msg;
-  if(tg.five){
+  if(tg.fixed){
+    if(n>=tg.need){ msg=tg.need+'장 완료! 최고예요.'; cls+=' ok'; }
+    else { msg='국어는 하루에 '+tg.need+'장이에요.'; }
+  } else if(tg.five){
     if(n>=5){ msg='5장 완료! 약속을 지켰어요.'; cls+=' ok'; }
     else { msg='어제 3장만 해서 오늘은 5장을 모두 해야 완료예요.'; cls+=' warn'; }
   } else if(n<3){
@@ -1862,7 +2035,51 @@ function renderReward(){
   qs('#weekStreak').textContent='이번 주 '+weekCount+'일';
   qs('#rewardHint').textContent=(weekCount>0)
     ? '이번 주에 마스터 도장 '+weekCount+'개를 모았어요! 모두 합쳐 '+total+'개!'
-    : '아침 루틴을 모두 끝내면 마스터 도장이 찍혀요!';
+    : '평일 아침 루틴을 모두 끝내면 마스터 도장이 찍혀요!';
+  renderBadges(total);
+}
+
+function renderBadges(totalStamps){
+  var have=state.badges.length;
+  qs('#badgeCount').textContent=have+'/'+BADGES.length;
+
+  var inCycle=totalStamps%STAMPS_PER_BADGE;
+  var pend=badgePending();
+  var dots='';
+  for(var i=0;i<STAMPS_PER_BADGE;i++){
+    var on=(pend>0)?true:(i<inCycle);
+    dots+='<span class="sdot'+(on?' on':'')+'"></span>';
+  }
+  if(have>=BADGES.length && pend<=0) dots+='<span>뱃지를 모두 모았어요!</span>';
+  else if(pend>0) dots+='<span>도장 '+STAMPS_PER_BADGE+'개 완성! 뱃지를 골라요</span>';
+  else dots+='<span>도장 '+STAMPS_PER_BADGE+'개 모으면 뱃지 1개! ('+(STAMPS_PER_BADGE-inCycle)+'개 남았어요)</span>';
+  qs('#stampDots').innerHTML=dots;
+
+  var btn=qs('#badgePickBtn');
+  if(pend>0){
+    btn.removeAttribute('hidden');
+    btn.textContent='새 뱃지 고르기!'+(pend>1?' ('+pend+'개)':'');
+  } else {
+    btn.setAttribute('hidden','');
+  }
+
+  var g='';
+  for(var j=0;j<BADGES.length;j++){
+    var b=BADGES[j];
+    var own=state.badges.indexOf(b.id)>=0;
+    g+='<div class="bdg'+(own?'':' locked')+'">'+badgeSvg(b,!own)+'<span>'+esc(b.name)+'</span></div>';
+  }
+  qs('#badgeGrid').innerHTML=g;
+
+  var goals='';
+  for(var k=0;k<GOALS.length;k++){
+    var gl=GOALS[k];
+    var got=have>=gl.need;
+    goals+='<div class="goal'+(got?' got':'')+'"><span class="g-num">뱃지 '+gl.need+'개</span>'
+      +'<span class="g-txt">'+esc(gl.label)+'</span>'
+      +'<span class="g-st">'+(got?'달성!':(Math.min(have,gl.need)+'/'+gl.need))+'</span></div>';
+  }
+  qs('#goals').innerHTML=goals;
 }
 
 /* ---------- prep ---------- */
@@ -2336,6 +2553,10 @@ function bind(){
     else if(act==='reset-today'){ resetToday(); }
     else if(act==='reset-all'){ resetAll(); }
     else if(act==='close-celebrate'){ qs('#celebrate').classList.remove('show'); }
+    else if(act==='badge-pick'){ openBadgePicker(); }
+    else if(act==='badge-take'){ takeBadge(t.getAttribute('data-id')); }
+    else if(act==='close-badge'){ closeBadgePicker(); }
+    else if(act==='close-badge-cel'){ qs('#badgeCelebrate').classList.remove('show'); }
   });
 
   var modal=qs('#settingsModal');
