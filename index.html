@@ -248,6 +248,11 @@ svg{display:block;}
 .goal{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:#FFFDF6;border:3px solid var(--line);}
 .goal.got{background:var(--mint);border-color:#9EE6BC;}
 .goal .g-num{flex:0 0 auto;min-width:54px;font-size:15px;font-weight:900;color:#8A6A00;background:#FFF3BF;border-radius:999px;padding:5px 10px;text-align:center;}
+.goal.ready{background:#FFF6DA;border-color:#F5C518;}
+.goal.ready .g-num{background:#FFE27A;color:#7A5B00;}
+.g-btn{flex:0 0 auto;min-height:46px;padding:8px 14px;border:none;border-radius:14px;background:linear-gradient(135deg,#37BE74,#2AA061);color:#fff;font-size:14.5px;font-weight:900;box-shadow:0 4px 0 #1F7D4A;cursor:pointer;word-break:keep-all;}
+.g-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1F7D4A;}
+.g-undo{flex:0 0 auto;margin-left:6px;min-height:34px;padding:4px 10px;border:2px solid #A9E7C2;border-radius:999px;background:#fff;color:#1B7A48;font-size:12px;font-weight:900;cursor:pointer;}
 .goal.got .g-num{background:#C9F3DA;color:#1B7A48;}
 .goal .g-txt{flex:1;font-size:15.5px;font-weight:900;line-height:1.3;word-break:keep-all;}
 .goal .g-st{font-size:13px;font-weight:900;color:#8B93A8;white-space:nowrap;}
@@ -1112,10 +1117,12 @@ var BADGES=[
   {id:'dragonite',name:'망나뇽',t:'dragon'},{id:'greninja',name:'개굴닌자',t:'water'},
   {id:'raichu',name:'라이츄',t:'electric'},{id:'pidgeot',name:'피죤투',t:'flying'}
 ];
-var GOALS=[
-  {need:5, label:'포켓몬카드 1세트'},
-  {need:10, label:'포켓몬스터 인형 1개 살 수 있는 기회'}
-];
+/* 뱃지 5개마다 보상 반복: 5·15개 = 포켓몬카드 1세트, 10·20개 = 인형 구매 기회 */
+var GOAL_STEP=5;
+function goalLabel(n){
+  if(n<=0 || n%GOAL_STEP!==0) return '';
+  return (n%(GOAL_STEP*2)===GOAL_STEP) ? '포켓몬카드 1세트' : '포켓몬스터 인형 1개 살 수 있는 기회';
+}
 
 function badgeById(id){
   for(var i=0;i<BADGES.length;i++){ if(BADGES[i].id===id) return BADGES[i]; }
@@ -1165,8 +1172,7 @@ function takeBadge(id){
   closeBadgePicker();
   renderReward();
   var n=state.badges.length;
-  var reward='';
-  for(var i=0;i<GOALS.length;i++){ if(GOALS[i].need===n) reward=GOALS[i].label; }
+  var reward=goalLabel(n);
   var card=qs('#badgeCelebrateCard');
   card.innerHTML='<div class="bdg-big">'+badgeSvg(b,false)+'</div>'
     +'<h2>'+esc(b.name)+' 뱃지 획득!</h2>'
@@ -1177,6 +1183,26 @@ function takeBadge(id){
   blip(784);
   setTimeout(function(){ blip(988); },120);
   setTimeout(function(){ blip(1318); },250);
+}
+
+function claimGoal(n){
+  n=parseInt(n,10);
+  if(!n || state.badges.length<n || state.claimed[n]) return;
+  if(!window.confirm('부모님이 눌러 주세요.\n"'+goalLabel(n)+'" 보상을 받았나요?')) return;
+  state.claimed[n]=true;
+  save();
+  renderReward();
+  toast('보상을 받았어요! 🎉');
+  blip(1046);
+}
+
+function unclaimGoal(n){
+  n=parseInt(n,10);
+  if(!n || !state.claimed[n]) return;
+  if(!window.confirm('"받았어요" 표시를 취소할까요?')) return;
+  delete state.claimed[n];
+  save();
+  renderReward();
 }
 
 function isWeekend(){
@@ -1192,7 +1218,7 @@ function weekendNote(nowMin){
 }
 
 function loadState(){
-  var base={settings:clone(DEFAULT_SETTINGS), days:{}, stamps:{}, badges:[], weather:null, kidsnote:emptyKidsnote()};
+  var base={settings:clone(DEFAULT_SETTINGS), days:{}, stamps:{}, badges:[], claimed:{}, weather:null, kidsnote:emptyKidsnote()};
   var raw=null;
   try{ raw=localStorage.getItem(KEY); }catch(e){}
   if(raw){
@@ -1214,6 +1240,9 @@ function loadState(){
         }
         if(p.days && typeof p.days==='object') base.days=p.days;
         if(p.stamps && typeof p.stamps==='object') base.stamps=p.stamps;
+        if(p.claimed && typeof p.claimed==='object'){
+          Object.keys(p.claimed).forEach(function(k){ if(p.claimed[k] && /^\d+$/.test(k)) base.claimed[k]=true; });
+        }
         if(Array.isArray(p.badges)){
           p.badges.forEach(function(id){ if(badgeById(id) && base.badges.indexOf(id)<0) base.badges.push(id); });
         }
@@ -1228,7 +1257,7 @@ function loadState(){
 function save(){
   try{
     localStorage.setItem(KEY, JSON.stringify({
-      settings:state.settings, days:state.days, stamps:state.stamps, badges:state.badges, weather:state.weather, kidsnote:state.kidsnote
+      settings:state.settings, days:state.days, stamps:state.stamps, badges:state.badges, claimed:state.claimed, weather:state.weather, kidsnote:state.kidsnote
     }));
   }catch(e){}
 }
@@ -2072,12 +2101,20 @@ function renderBadges(totalStamps){
   qs('#badgeGrid').innerHTML=g;
 
   var goals='';
-  for(var k=0;k<GOALS.length;k++){
-    var gl=GOALS[k];
-    var got=have>=gl.need;
-    goals+='<div class="goal'+(got?' got':'')+'"><span class="g-num">뱃지 '+gl.need+'개</span>'
-      +'<span class="g-txt">'+esc(gl.label)+'</span>'
-      +'<span class="g-st">'+(got?'달성!':(Math.min(have,gl.need)+'/'+gl.need))+'</span></div>';
+  var nextShown=false;
+  for(var need=GOAL_STEP; need<=BADGES.length; need+=GOAL_STEP){
+    var got=have>=need;
+    if(!got){
+      if(nextShown) break;     /* 다음 목표 하나만 보여 주기 */
+      nextShown=true;
+    }
+    var claimed=!!state.claimed[need];
+    var right;
+    if(!got) right='<span class="g-st">'+have+'/'+need+'</span>';
+    else if(claimed) right='<span class="g-st">받았어요 ✓</span><button type="button" class="g-undo" data-act="goal-unclaim" data-n="'+need+'">취소</button>';
+    else right='<button type="button" class="g-btn" data-act="goal-claim" data-n="'+need+'">부모님 확인 · 받았어요</button>';
+    goals+='<div class="goal'+(got?(claimed?' got':' ready'):'')+'"><span class="g-num">뱃지 '+need+'개</span>'
+      +'<span class="g-txt">'+esc(goalLabel(need))+'</span>'+right+'</div>';
   }
   qs('#goals').innerHTML=goals;
 }
@@ -2554,6 +2591,8 @@ function bind(){
     else if(act==='reset-all'){ resetAll(); }
     else if(act==='close-celebrate'){ qs('#celebrate').classList.remove('show'); }
     else if(act==='badge-pick'){ openBadgePicker(); }
+    else if(act==='goal-claim'){ claimGoal(t.getAttribute('data-n')); }
+    else if(act==='goal-unclaim'){ unclaimGoal(t.getAttribute('data-n')); }
     else if(act==='badge-take'){ takeBadge(t.getAttribute('data-id')); }
     else if(act==='close-badge'){ closeBadgePicker(); }
     else if(act==='close-badge-cel'){ qs('#badgeCelebrate').classList.remove('show'); }
