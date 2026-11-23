@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-11-22T18:00:00+09:00",
-  "date": "2026-11-22",
-  "dateLabel": "11월 22일(일)",
+  "updatedAt": "2026-11-23T18:00:00+09:00",
+  "date": "2026-11-23",
+  "dateLabel": "11월 23일(월)",
   "kidsnote": [
     {
       "id": "kn_poly_books",
@@ -9,38 +9,29 @@
       "scope": "weekday"
     },
     {
+      "id": "kn_epoly_u1l6",
+      "text": "e-POLY English Unit 1 Lesson 6 : Word Check"
+    },
+    {
       "id": "kn_epoly_phonics",
-      "text": "오늘까지 e-POLY Phonics Week 12",
+      "text": "주말까지 e-POLY Phonics Week 13",
       "scope": "weekend"
     },
     {
       "id": "kn_epoly_action",
-      "text": "오늘까지 e-POLY Action Time Week 12",
-      "scope": "weekend"
-    },
-    {
-      "id": "kn_epoly_u1l6",
-      "text": "English Unit 1 Lesson 6 (Words to Know~Reading Check) 복습",
-      "scope": "weekend"
-    },
-    {
-      "id": "kn_writing_monster",
-      "text": "Writing Monster 워크시트 풀고 답안지로 확인",
+      "text": "주말까지 e-POLY Action Time Week 13",
       "scope": "weekend"
     },
     {
       "id": "kn_spelling",
-      "text": "다음 주 Spelling Test 5문항 연습 (grandson, finish, catch, 두 문장)",
-      "scope": "weekend"
+      "text": "Spelling Test 5문항 연습 (11/26 목 시험: grandson, finish, catch, 두 문장)",
+      "scope": "weekday"
     }
   ],
-  "note": "오늘(11/22 일)까지 e-POLY Week 12 마감 · 내일(11/23 월)은 체육복 등원 · 비 94% 예보라 우산 챙기기 · 11/23 Tongue Twister 'Busy buzzing bumblebees' 4번 · 11/25(수) 12월 수강료 납부 마감 · 11/27(금) Thanksgiving Day",
+  "note": "내일(11/24 화)은 원복 등원 · Show and Tell은 11/26(목)로 연기 · Spelling Test도 11/26(목), 금요일 도서 대여 없음 · 11/25(수) 12월 수강료 납부 마감 · 11/27(금) Thanksgiving Day(가을 수확 간식 1인분 소분·수저통·물통·빨강/주황/노랑/갈색 옷) · 12/4(금) 2027학년도 재원 설문 마감",
   "prep": {
-    "mon": [
-      "체육복 입고 등원",
-      "실내화·양치컵 씻어서 지참",
-      "Writing Monster·Worksheets·Diary 지참",
-      "우산 챙기기 (비 94% 예보)"
+    "tue": [
+      "원복 입고 등원"
     ]
   }
 }
