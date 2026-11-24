@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-11-23T18:00:00+09:00",
-  "date": "2026-11-23",
-  "dateLabel": "11월 23일(월)",
+  "updatedAt": "2026-11-24T18:00:00+09:00",
+  "date": "2026-11-24",
+  "dateLabel": "11월 24일(화)",
   "kidsnote": [
     {
       "id": "kn_poly_books",
@@ -10,7 +10,8 @@
     },
     {
       "id": "kn_epoly_u1l6",
-      "text": "e-POLY English Unit 1 Lesson 6 : Word Check"
+      "text": "e-POLY English Unit 1 Lesson 6 : Word Check",
+      "scope": "daily"
     },
     {
       "id": "kn_epoly_phonics",
@@ -28,10 +29,10 @@
       "scope": "weekday"
     }
   ],
-  "note": "내일(11/24 화)은 원복 등원 · Show and Tell은 11/26(목)로 연기 · Spelling Test도 11/26(목), 금요일 도서 대여 없음 · 11/25(수) 12월 수강료 납부 마감 · 11/27(금) Thanksgiving Day(가을 수확 간식 1인분 소분·수저통·물통·빨강/주황/노랑/갈색 옷) · 12/4(금) 2027학년도 재원 설문 마감",
+  "note": "내일(11/25 수)은 체육복 입고 등원 · 12월 수강료 납부 마감(기업은행 039-068127-04-017, 학생 이름으로 입금 · POLY App·지역카드·제로페이 불가) · 11/26(목) Show and Tell + Spelling Test, 10:30 초등부 입학설명회 · 11/27(금) Thanksgiving Day(빨강·주황·노랑·갈색 옷, 수저통·물통, 가을 수확 간식 1인분 소분) · 금요일은 도서 대여 없음 · 12/4(금) 재원 설문조사 마감",
   "prep": {
-    "tue": [
-      "원복 입고 등원"
+    "wed": [
+      "체육복 입고 등원"
     ]
   }
 }
