@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-11-24T18:00:00+09:00",
-  "date": "2026-11-24",
-  "dateLabel": "11월 24일(화)",
+  "updatedAt": "2026-11-25T18:00:00+09:00",
+  "date": "2026-11-25",
+  "dateLabel": "11월 25일(수)",
   "kidsnote": [
     {
       "id": "kn_poly_books",
@@ -10,7 +10,7 @@
     },
     {
       "id": "kn_epoly_u1l6",
-      "text": "e-POLY English Unit 1 Lesson 6 : Word Check",
+      "text": "e-POLY English Unit 1 Lesson 6 : Reading Booster",
       "scope": "daily"
     },
     {
@@ -25,14 +25,19 @@
     },
     {
       "id": "kn_spelling",
-      "text": "Spelling Test 5문항 연습 (11/26 목 시험: grandson, finish, catch, 두 문장)",
+      "text": "Spelling Test 5문항 연습 (내일 11/26 목 시험: grandson, finish, catch, 두 문장)",
       "scope": "weekday"
     }
   ],
-  "note": "내일(11/25 수)은 체육복 입고 등원 · 12월 수강료 납부 마감(기업은행 039-068127-04-017, 학생 이름으로 입금 · POLY App·지역카드·제로페이 불가) · 11/26(목) Show and Tell + Spelling Test, 10:30 초등부 입학설명회 · 11/27(금) Thanksgiving Day(빨강·주황·노랑·갈색 옷, 수저통·물통, 가을 수확 간식 1인분 소분) · 금요일은 도서 대여 없음 · 12/4(금) 재원 설문조사 마감",
+  "note": "내일(11/26 목)은 원복 입고 등원 · Show and Tell 발표자 Rumi(지호 차례 아님) + Spelling Test 5문항 · 10:30 2027 초등부 입학설명회(참고) · 11/27(금) Thanksgiving Day — 빨강·주황·노랑·갈색 옷, 수저통·물통, 가을 수확 재료 간식 1인분 소분 · 12월 수강료 납부 오늘(11/25) 마감(기업은행 039-068127-04-017, 학생 이름으로 입금) · 12/10(목) Open Class는 부모 두 분 참석 가능(11/25 공지)",
   "prep": {
-    "wed": [
-      "체육복 입고 등원"
+    "thu": [
+      "원복 입고 등원"
+    ],
+    "fri": [
+      "빨강·주황·노랑·갈색 옷 입고 등원",
+      "수저통·물통",
+      "가을 수확 재료 간식 1인분 소분"
     ]
   }
 }
