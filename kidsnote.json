@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-11-26T18:00:00+09:00",
-  "date": "2026-11-26",
-  "dateLabel": "11월 26일(목)",
+  "updatedAt": "2026-11-28T07:35:32+09:00",
+  "date": "2026-11-27",
+  "dateLabel": "11월 27일(금)",
   "kidsnote": [
     {
       "id": "kn_poly_books",
@@ -10,7 +10,7 @@
     },
     {
       "id": "kn_epoly_u1l6",
-      "text": "e-POLY English Unit 1 Lesson 6 : Word Booster",
+      "text": "e-POLY English Unit 1 Lesson 6 : Word Check ~ Word Booster 복습",
       "scope": "daily"
     },
     {
@@ -24,14 +24,10 @@
       "scope": "weekend"
     }
   ],
-  "note": "내일(11/27 금) Thanksgiving Day — 빨강·주황·노랑·갈색 옷, 수저통·물통, 가을 수확 재료 간식 1인분 소분 · 내일 도서 대여 없음(빌린 책은 월요일 반납) · 12/4(금) 재원 설문 마감 · 12/10(목) Open Class 두 분 참석 여부는 12/7(월)까지 댓글로",
+  "note": "다음 주 Spelling Test 5문항 연습 — leave / hide / puff up / \"This is a nice place for taking a nap.\" / \"Just then, a big bear came by.\" (대문자·띄어쓰기·문장부호 틀리면 오답) · 12/22 Show and Tell 발표자로 뽑혀 원고 12/1(화)까지 제출(주제 'Once Upon a Time', 1~3분) · 월요일 도서 반납",
   "prep": {
-    "fri": [
-      "빨강·주황·노랑·갈색 옷 입고 등원",
-      "수저통·물통",
-      "가을 수확 재료 간식 1인분 소분"
-    ],
     "mon": [
+      "체육복 입고 등원",
       "도서 반납"
     ]
   }
